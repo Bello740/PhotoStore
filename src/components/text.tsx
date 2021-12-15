@@ -7,7 +7,7 @@ import {ColorValue, Pressable, Text, TextProps, TextStyle} from 'react-native';
 export type AxTextProps = PropsWithChildren<
   TextProps & {
     size?: number;
-    weight?: 300 | 400 | 500 | 600 | 700 | 800;
+    weight?: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800;
     style?: TextStyle;
     centered?: boolean;
     color?: ColorValue;
@@ -22,7 +22,7 @@ function AxText(props: AxTextProps) {
     children,
     onPress,
     size = Platform.select({ios: 16, android: 14}),
-    weight = 500,
+    weight = 100,
     style,
     opacity = 1,
     centered = false,

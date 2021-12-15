@@ -6,7 +6,7 @@ import {BLACK_1} from '../styles/colors';
 export function ButtonText({
   children,
   color = BLACK_1,
-  weight = 300,
+  weight = 100,
   ...rest
 }: AxTextProps) {
   return (
