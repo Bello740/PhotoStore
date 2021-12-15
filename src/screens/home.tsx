@@ -1,10 +1,27 @@
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, SafeAreaView, StyleSheet} from 'react-native';
+
+import {Header} from '../components';
+import {WHITE} from '../styles/colors';
+import {metrics} from '../theme/metrics';
 
 export function HomeScreen() {
   return (
-    <View>
-      <Text>Home Screen</Text>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <Header title="Home " />
+      <View style={styles.body}>
+        <Text>Home Screen</Text>
+      </View>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: WHITE,
+  },
+  body: {
+    padding: metrics.defaultPadding,
+  },
+});

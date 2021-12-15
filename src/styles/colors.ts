@@ -3,6 +3,7 @@ export const BLACK = '#010101';
 export const BLACK_1 = '#121212';
 export const GREY_1 = '#969696';
 export const GREY_2 = '#F6F6F6';
+export const GREY_3 = '#F0f0f0';
 export const PRIMARY_COLOR = '#239293';
 export const PRIMARY_COLOR_LIGHT = '#C4E0E1';
 export const FAINT_TEXT_COLOR = '#969696';
