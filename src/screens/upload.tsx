@@ -44,17 +44,29 @@ export function UploadScreen() {
           ) : (
             <Image
               resizeMode="cover"
-              style={{width: '100%', height: '100%'}}
+              style={{width: '100%', height: '100%', borderRadius: 50}}
               source={{uri}}
             />
           )}
         </TouchableOpacity>
         {!pickerResponse ? null : (
-          <View style={styles.buttonSection}>
+          <View>
             <Spacer y={20} />
-            <Button>
-              <ButtonText>Apply edit</ButtonText>
-            </Button>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+              }}>
+              <Button rounded style={styles.button}>
+                <ButtonText>Frame</ButtonText>
+              </Button>
+              <Button rounded style={styles.button}>
+                <ButtonText>Left</ButtonText>
+              </Button>
+              <Button rounded style={styles.button}>
+                <ButtonText>Right</ButtonText>
+              </Button>
+            </View>
           </View>
         )}
       </View>
@@ -76,13 +88,10 @@ const styles = StyleSheet.create({
     backgroundColor: GREY_2,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 2,
+    borderRadius: 50,
     borderColor: GREY_3,
     borderWidth: 2,
     borderStyle: 'dashed',
   },
-  buttonSection: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  button: {width: '30%'},
 });
