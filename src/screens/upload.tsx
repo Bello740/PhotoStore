@@ -32,7 +32,7 @@ export function UploadScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header title="Upload " />
+      <Header title="PhotoShop" />
       <Spacer y={5} />
       <View style={styles.body}>
         <TouchableOpacity
