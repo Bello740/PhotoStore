@@ -6,17 +6,22 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
+
 import {
   launchImageLibrary,
   ImageLibraryOptions,
   ImagePickerResponse,
 } from 'react-native-image-picker';
+
 import {Header, ButtonText, Button, Spacer, AxText} from '../components';
+import {imageRequest, CustomFlashMessage} from '../helpers';
 import {GREY_1, GREY_2, GREY_3, WHITE} from '../styles/colors';
 import {metrics} from '../theme/metrics';
 
 export function UploadScreen() {
   const [pickerResponse, setPickerResponse] = useState<ImagePickerResponse>();
+
+  let uri = pickerResponse?.assets && pickerResponse.assets[0].uri;
 
   const onPressLaunchImageLibrary = async () => {
     const options: ImageLibraryOptions = {
@@ -28,7 +33,16 @@ export function UploadScreen() {
     setPickerResponse(result);
   };
 
-  let uri = pickerResponse?.assets && pickerResponse.assets[0].uri;
+  const onButtonFramePress = () => {
+    try {
+    } catch ({message, status}) {
+      CustomFlashMessage.error(message as string);
+    }
+  };
+
+  const onButtonLeftPress = () => {};
+
+  const onButtonRightPress = () => {};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -57,13 +71,19 @@ export function UploadScreen() {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
               }}>
-              <Button rounded style={styles.button}>
+              <Button
+                onPress={onButtonFramePress}
+                rounded
+                style={styles.button}>
                 <ButtonText>Frame</ButtonText>
               </Button>
-              <Button rounded style={styles.button}>
+              <Button onPress={onButtonLeftPress} rounded style={styles.button}>
                 <ButtonText>Left</ButtonText>
               </Button>
-              <Button rounded style={styles.button}>
+              <Button
+                onPress={onButtonRightPress}
+                rounded
+                style={styles.button}>
                 <ButtonText>Right</ButtonText>
               </Button>
             </View>
