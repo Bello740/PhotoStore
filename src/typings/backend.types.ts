@@ -1,3 +1,3 @@
-export type ImagePickerPayload = {
-  imageUrl: 'string';
-};
+// export type ImagePickerPayload = {
+//   uri: string | undefined;
+// };

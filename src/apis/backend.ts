@@ -8,6 +8,9 @@ import {API_URL} from '../config';
 
 const backend = axios.create({
   baseURL: API_URL,
+  headers: {
+    'Content-Type': 'multipart/form-data',
+  },
 });
 
 backend.interceptors.response.use(

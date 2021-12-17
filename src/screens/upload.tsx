@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  Platform,
 } from 'react-native';
 
 import {
@@ -21,7 +22,7 @@ import {metrics} from '../theme/metrics';
 export function UploadScreen() {
   const [pickerResponse, setPickerResponse] = useState<ImagePickerResponse>();
 
-  let uri = pickerResponse?.assets && pickerResponse.assets[0].uri;
+  let imgFile = pickerResponse?.assets && pickerResponse.assets[0];
 
   const onPressLaunchImageLibrary = async () => {
     const options: ImageLibraryOptions = {
@@ -33,8 +34,23 @@ export function UploadScreen() {
     setPickerResponse(result);
   };
 
-  const onButtonFramePress = () => {
+  const onButtonFramePress = async () => {
     try {
+      let mimetype = imgFile?.type;
+      let fileName = imgFile?.fileName;
+      let imgUri = imgFile?.uri;
+      if (imgUri) {
+        imgUri = Platform.OS === 'ios' ? imgUri.replace('file://', '') : imgUri;
+        console.log(imgUri);
+      }
+      const formData = new FormData();
+      formData.append('file', {
+        name: fileName,
+        uri: imgUri,
+        type: mimetype,
+      });
+      // console.log(formData);
+      await imageRequest(formData);
     } catch ({message, status}) {
       CustomFlashMessage.error(message as string);
     }
@@ -59,7 +75,7 @@ export function UploadScreen() {
             <Image
               resizeMode="cover"
               style={{width: '100%', height: '100%', borderRadius: 50}}
-              source={{uri}}
+              source={{uri: imgFile?.uri}}
             />
           )}
         </TouchableOpacity>

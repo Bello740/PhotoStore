@@ -1,7 +1,6 @@
 import {backend} from '../apis/backend';
-import {ImagePickerPayload} from '../typings';
 
-export const imageRequest = async (payload: ImagePickerPayload) => {
+export const imageRequest = async (payload: FormData) => {
   await backend.post('/upload', payload);
-  //   await backend.get('/file');
+  await backend.get('/file');
 };
