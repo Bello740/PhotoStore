@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   SafeAreaView,
@@ -13,16 +13,29 @@ import {
   ImageLibraryOptions,
   ImagePickerResponse,
 } from 'react-native-image-picker';
+import {backend} from '../apis/backend';
 
 import {Header, ButtonText, Button, Spacer, AxText} from '../components';
-import {imageRequest, CustomFlashMessage} from '../helpers';
-import {GREY_1, GREY_2, GREY_3, WHITE} from '../styles/colors';
+import {API_URL} from '../config';
+import {uploadImage, CustomFlashMessage} from '../helpers';
+import {GREY_1, GREY_2, WHITE} from '../styles/colors';
 import {metrics} from '../theme/metrics';
 
 export function UploadScreen() {
   const [pickerResponse, setPickerResponse] = useState<ImagePickerResponse>();
-
+  const [imageUri, setImageUri] = useState<string>();
   let imgFile = pickerResponse?.assets && pickerResponse.assets[0];
+  let mimetype = imgFile?.type;
+  let fileName = imgFile?.fileName;
+
+  useEffect(() => {
+    console.log(imgFile);
+    setImageUri(imgFile?.uri && imgFile.uri);
+  }, [pickerResponse]);
+
+  useEffect(() => {
+    console.log('this', imageUri);
+  }, [imageUri]);
 
   const onPressLaunchImageLibrary = async () => {
     const options: ImageLibraryOptions = {
@@ -31,17 +44,16 @@ export function UploadScreen() {
       includeBase64: false,
     };
     const result = await launchImageLibrary(options);
-    setPickerResponse(result);
+    if (result) {
+      setPickerResponse(result);
+    }
   };
 
-  const onButtonFramePress = async () => {
+  const onUploadPress = async () => {
     try {
-      let mimetype = imgFile?.type;
-      let fileName = imgFile?.fileName;
-      let imgUri = imgFile?.uri;
+      let imgUri = imgFile?.uri && imgFile.uri;
       if (imgUri) {
         imgUri = Platform.OS === 'ios' ? imgUri.replace('file://', '') : imgUri;
-        console.log(imgUri);
       }
       const formData = new FormData();
       formData.append('file', {
@@ -49,59 +61,103 @@ export function UploadScreen() {
         uri: imgUri,
         type: mimetype,
       });
-      // console.log(formData);
-      await imageRequest(formData);
+      await uploadImage(formData);
     } catch ({message, status}) {
       CustomFlashMessage.error(message as string);
     }
   };
 
-  const onButtonLeftPress = () => {};
+  const onButtonFramePress = async () => {
+    const data = (
+      await backend.get('/file', {
+        params: {action: 'composite', filename: `${fileName}`},
+      })
+    ).data;
+    setImageUri(`${API_URL}/file/${data.name}`);
+  };
+
+  const onDonePress = () => {
+    setPickerResponse(undefined);
+  };
+
+  const onButtonLeftPress = async () => {
+    const data = (
+      await backend.get('/file', {
+        params: {
+          action: 'rotate',
+          direction: 'left',
+          filename: `${fileName}`,
+        },
+      })
+    ).data;
+    setImageUri(`${API_URL}/file/${data.name}`);
+  };
 
   const onButtonRightPress = () => {};
 
   return (
     <SafeAreaView style={styles.container}>
       <Header title="PhotoShop" />
-      <Spacer y={5} />
       <View style={styles.body}>
-        <TouchableOpacity
-          onPress={onPressLaunchImageLibrary}
-          activeOpacity={0.7}
-          style={styles.ImageSection}>
-          {!pickerResponse ? (
-            <AxText color={GREY_1}>Choose file here..</AxText>
-          ) : (
-            <Image
-              resizeMode="cover"
-              style={{width: '100%', height: '100%', borderRadius: 50}}
-              source={{uri: imgFile?.uri}}
-            />
-          )}
-        </TouchableOpacity>
-        {!pickerResponse ? null : (
-          <View>
-            <Spacer y={20} />
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-              }}>
-              <Button
-                onPress={onButtonFramePress}
-                rounded
-                style={styles.button}>
-                <ButtonText>Frame</ButtonText>
-              </Button>
-              <Button onPress={onButtonLeftPress} rounded style={styles.button}>
-                <ButtonText>Left</ButtonText>
-              </Button>
-              <Button
-                onPress={onButtonRightPress}
-                rounded
-                style={styles.button}>
-                <ButtonText>Right</ButtonText>
-              </Button>
+        {!pickerResponse ? (
+          <TouchableOpacity
+            onPress={onPressLaunchImageLibrary}
+            activeOpacity={0.7}
+            style={styles.ImageSection}>
+            <AxText color={GREY_1}>Tap the sceen to choose files ...</AxText>
+          </TouchableOpacity>
+        ) : (
+          <View style={{flex: 1}}>
+            <View style={[styles.ImageSection]}>
+              <Image
+                resizeMode="contain"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                }}
+                source={{
+                  uri: imageUri,
+                }}
+              />
+            </View>
+
+            <View style={{paddingHorizontal: metrics.defaultPadding}}>
+              <Spacer y={20} />
+              <View>
+                <Button onPress={onUploadPress} rounded>
+                  <ButtonText>Upload</ButtonText>
+                </Button>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}>
+                  <Button
+                    onPress={onButtonFramePress}
+                    style={styles.button}
+                    rounded>
+                    <ButtonText>Frame</ButtonText>
+                  </Button>
+
+                  <Button onPress={onDonePress} style={styles.button} rounded>
+                    <ButtonText>Done</ButtonText>
+                  </Button>
+
+                  <Button
+                    onPress={onButtonLeftPress}
+                    style={styles.button}
+                    rounded>
+                    <ButtonText>Left</ButtonText>
+                  </Button>
+                  <Button
+                    onPress={onButtonRightPress}
+                    style={styles.button}
+                    rounded>
+                    <ButtonText>Right</ButtonText>
+                  </Button>
+                </View>
+              </View>
             </View>
           </View>
         )}
@@ -117,17 +173,13 @@ const styles = StyleSheet.create({
   },
   body: {
     flex: 1,
-    padding: metrics.defaultPadding,
   },
   ImageSection: {
     flex: 1,
     backgroundColor: GREY_2,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 50,
-    borderColor: GREY_3,
-    borderWidth: 2,
-    borderStyle: 'dashed',
+    padding: metrics.defaultPadding,
   },
   button: {width: '30%'},
 });
