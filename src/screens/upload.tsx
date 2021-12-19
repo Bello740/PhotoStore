@@ -24,13 +24,17 @@ import {metrics} from '../theme/metrics';
 export function UploadScreen() {
   const [pickerResponse, setPickerResponse] = useState<ImagePickerResponse>();
   const [imageUri, setImageUri] = useState<string | undefined>();
+  const [imageFramed, setImageFramed] = useState<boolean>(false);
   let imgFile = pickerResponse?.assets && pickerResponse.assets[0];
   let mimetype = imgFile?.type;
   let fileName = imgFile?.fileName;
 
   useEffect(() => {
     console.log(imgFile);
-    setImageUri(imgFile?.uri && imgFile.uri);
+    if (imgFile) {
+      setImageUri(imgFile?.uri && imgFile.uri);
+      onUploadPress();
+    }
   }, [pickerResponse]);
 
   useEffect(() => {
@@ -74,6 +78,7 @@ export function UploadScreen() {
       })
     ).data;
     console.log('my data', data);
+    setImageFramed(true);
     setImageUri(undefined);
     setImageUri(`${API_URL}/file/${data.name}`);
   };
@@ -109,6 +114,7 @@ export function UploadScreen() {
   };
 
   const onDonePress = () => {
+    setImageFramed(false);
     setPickerResponse(undefined);
   };
 
@@ -140,40 +146,36 @@ export function UploadScreen() {
 
             <View style={{paddingHorizontal: metrics.defaultPadding}}>
               <Spacer y={20} />
-              <View>
-                <Button onPress={onUploadPress} rounded>
-                  <ButtonText>Upload</ButtonText>
-                </Button>
-
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                }}>
+                {!imageFramed ? (
                   <Button
                     onPress={onButtonFramePress}
                     style={styles.button}
                     rounded>
                     <ButtonText>Frame</ButtonText>
                   </Button>
-
+                ) : (
                   <Button onPress={onDonePress} style={styles.button} rounded>
                     <ButtonText>Done</ButtonText>
                   </Button>
+                )}
 
-                  <Button
-                    onPress={onButtonLeftPress}
-                    style={styles.button}
-                    rounded>
-                    <ButtonText>Left</ButtonText>
-                  </Button>
-                  <Button
-                    onPress={onButtonRightPress}
-                    style={styles.button}
-                    rounded>
-                    <ButtonText>Right</ButtonText>
-                  </Button>
-                </View>
+                <Button
+                  onPress={onButtonLeftPress}
+                  style={styles.button}
+                  rounded>
+                  <ButtonText>Left</ButtonText>
+                </Button>
+                <Button
+                  onPress={onButtonRightPress}
+                  style={styles.button}
+                  rounded>
+                  <ButtonText>Right</ButtonText>
+                </Button>
               </View>
             </View>
           </View>
