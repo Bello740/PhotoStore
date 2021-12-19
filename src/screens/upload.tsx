@@ -23,7 +23,7 @@ import {metrics} from '../theme/metrics';
 
 export function UploadScreen() {
   const [pickerResponse, setPickerResponse] = useState<ImagePickerResponse>();
-  const [imageUri, setImageUri] = useState<string>();
+  const [imageUri, setImageUri] = useState<string | undefined>();
   let imgFile = pickerResponse?.assets && pickerResponse.assets[0];
   let mimetype = imgFile?.type;
   let fileName = imgFile?.fileName;
@@ -73,11 +73,9 @@ export function UploadScreen() {
         params: {action: 'composite', filename: `${fileName}`},
       })
     ).data;
+    console.log('my data', data);
+    setImageUri(undefined);
     setImageUri(`${API_URL}/file/${data.name}`);
-  };
-
-  const onDonePress = () => {
-    setPickerResponse(undefined);
   };
 
   const onButtonLeftPress = async () => {
@@ -90,16 +88,35 @@ export function UploadScreen() {
         },
       })
     ).data;
+    console.log('my data', data);
+    setImageUri(undefined);
     setImageUri(`${API_URL}/file/${data.name}`);
   };
 
-  const onButtonRightPress = () => {};
+  const onButtonRightPress = async () => {
+    const data = (
+      await backend.get('/file', {
+        params: {
+          action: 'rotate',
+          direction: 'right',
+          filename: `${fileName}`,
+        },
+      })
+    ).data;
+    console.log('my data', data);
+    setImageUri(undefined);
+    setImageUri(`${API_URL}/file/${data.name}`);
+  };
+
+  const onDonePress = () => {
+    setPickerResponse(undefined);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <Header title="PhotoShop" />
       <View style={styles.body}>
-        {!pickerResponse ? (
+        {!pickerResponse?.assets ? (
           <TouchableOpacity
             onPress={onPressLaunchImageLibrary}
             activeOpacity={0.7}
